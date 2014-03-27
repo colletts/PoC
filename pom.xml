@@ -25,6 +25,11 @@
 		<module>SE00</module>
 		<module>DE11</module>		
 		<module>DE15</module>
+		<module>DE16</module>
+		<module>DE18</module>
+		<module>DE19</module>
+		<module>DE20</module>		
+		<module>features</module>				
 	</modules>
 
 	<properties>
@@ -35,7 +40,21 @@
 		<karaf-version>2.3.0.redhat-60024</karaf-version>
 		<smx-features-version>4.5.0.redhat-60024</smx-features-version>
 		<slf4j-api-version>1.6.1</slf4j-api-version>
-		<maven-camel-plugin-version>2.12.0.redhat-610376</maven-camel-plugin-version>				
+		<maven-camel-plugin-version>2.12.0.redhat-610376</maven-camel-plugin-version>		
+
+        <!-- Maven build properties -->
+        <build-helper-plugin-version>1.7</build-helper-plugin-version>
+        <features-maven-plugin-version>2.2.5</features-maven-plugin-version>
+        <maven-compiler-plugin-version>2.3.2</maven-compiler-plugin-version>
+        <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
+        <build-plugins-plugin-version>2.5</build-plugins-plugin-version>
+        <maven-resources-plugin-version>2.5</maven-resources-plugin-version>
+        <maven-enforcer-plugin-version>1.1</maven-enforcer-plugin-version>
+        <maven-surefire-plugin-version>2.12</maven-surefire-plugin-version>
+        <maven-failsafe-plugin-version>2.12</maven-failsafe-plugin-version>
+        <maven-source-plugin-version>2.2.1</maven-source-plugin-version>
+        <maven-jar-plugin-version>2.4</maven-jar-plugin-version>                        
+		
 	</properties>
 
 	<dependencyManagement>
