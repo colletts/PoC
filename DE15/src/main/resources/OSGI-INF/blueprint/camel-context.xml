@@ -1,0 +1,54 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf">
+
+	<property-placeholder persistent-id="org.fusesource.camel.ws"
+		xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+		<default-properties>
+			<property name="server" value="http://localhost:8183" />
+		</default-properties>
+	</property-placeholder>
+
+	<camelcxf:cxfEndpoint id="portfolioEndpoint"
+		address="${server}/cxf/portfolio" serviceClass="org.poc.ws.PortfolioEndpoint" />
+
+<!-- 	<camelcxf:cxfEndpoint id="lookupEndpoint" address="${server}/cxf/lookup" -->
+<!-- 		serviceClass="org.poc.ws.LookupEndpoint" /> -->
+
+
+	<camelContext trace="false" id="ws"
+		xmlns="http://camel.apache.org/schema/blueprint">
+<!-- 		<dataFormats> -->
+<!-- 			<jaxb id="modelJaxb" prettyPrint="true" contextPath="org.poc.model"/> -->
+<!-- 		</dataFormats> -->
+
+		<route id="DE15-ws-ws-jms">
+			<from uri="cxf:bean:portfolioEndpoint" />
+			<to	uri="bean:org.poc.transformers.PortfolioEnrichTransformer?method=enrichPortfolio" />
+			<!-- https://issues.jboss.org/browse/MR-683 -->
+<!-- 			<marshal ref="modelJaxb"/> -->
+			<setBody>
+				<simple>${body.toString}</simple>
+			</setBody>
+			<inOnly uri="activemq:DE15_Queue" />
+			<transform>
+				<constant>OK</constant>
+			</transform>
+		</route>
+<!-- 		<route id="DE15-lookup-ws"> -->
+<!-- 			<from uri="cxf:bean:lookupEndpoint" /> -->
+<!-- 			<transform> -->
+<!-- 				<constant>lookup</constant> -->
+<!-- 			</transform> -->
+<!-- 		</route> -->
+	</camelContext>
+
+
+	<!-- Set username and password to values you set in etc/user.properties -->
+	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+		<property name="brokerURL" value="tcp://localhost:61616" />
+		<property name="userName" value="admin" />
+		<property name="password" value="admin" />
+	</bean>
+
+
+</blueprint>
