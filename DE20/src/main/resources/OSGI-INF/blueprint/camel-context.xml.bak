@@ -1,0 +1,38 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:camel="http://camel.apache.org/schema/blueprint"
+           xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
+    >
+
+    <bean id="defaultErrorHandler" class="org.apache.camel.builder.DefaultErrorHandlerBuilder">
+    </bean>
+
+    <bean id="retryErrorHandler" class="org.apache.camel.builder.DefaultErrorHandlerBuilder">
+        <property name="redeliveryPolicy" ref="retryPolicy"/>
+    </bean>
+
+    <bean id="retryPolicy" class="org.apache.camel.processor.RedeliveryPolicy">
+        <property name="maximumRedeliveries" value="-1"/>
+        <property name="redeliveryDelay" value="30000"/>
+        <property name="retryAttemptedLogLevel" value="WARN"/>
+    </bean>
+
+
+    <camelContext id="de20" errorHandlerRef="defaultErrorHandler" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="de20RestInputRoute">
+            <from uri="timer:eventDriven?period=15000"/>
+            <log message="Received msg for de20"/>
+            <setBody>
+                <constant>message</constant>
+            </setBody>
+            <inOnly uri="direct:offlineEndpoint"/>
+        </route>
+
+        <route id="de20VMOfflineRoute" errorHandlerRef="retryErrorHandler">
+            <from uri="direct:offlineEndpoint"/>
+            <log message="Receive de20 direct message and send message to offline system"/>
+            <to uri="vm:offline"/>
+        </route>
+
+    </camelContext>
+
+</blueprint>

@@ -1,5 +1,19 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf">
+           xmlns:camel="http://camel.apache.org/schema/blueprint"
+           xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
+        >
+
+    <property-placeholder persistent-id="org.fusesource.camel.ws"
+                          xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+        <default-properties>
+            <property name="server.de.19" value="http://localhost:8184" />
+        </default-properties>
+    </property-placeholder>
+
+
+    <cxf:rsServer id="restServer"
+                  address="${server.de.19}/cxf/offlineRequest"
+                  serviceClass="org.poc.rs.OffLineEndpoint" />
 
     <camelContext id="de19" xmlns="http://camel.apache.org/schema/blueprint">
         <route id="eventDrivenRoute">
@@ -15,6 +29,12 @@
                 <log message="de19 batch event: ${body}"/>
             </aggregate>
         </route>
+
+        <route id="de20OfflineOnlineRoute">
+            <from uri="cxfrs:bean:restServer"/>
+            <log message="Offline system is now online and receiving de20 message."/>
+        </route>
+
     </camelContext>
 
     <bean id="aggregatorStrategy" class="org.poc.aggregator.BodyInAggregatingStrategy"/>
