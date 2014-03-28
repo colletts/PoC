@@ -1,6 +1,22 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
 	xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf">
 
-	
+    <camelContext id="de19" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="eventDrivenRoute">
+            <from uri="timer:eventDriven?period=15000"/>
+            <log message="de19 event"/>
+            <setBody>
+                <simple>${id}</simple>
+            </setBody>
+            <aggregate strategyRef="aggregatorStrategy" completionSize="3">
+                <correlationExpression>
+                    <simple>true</simple>
+                </correlationExpression>
+                <log message="de19 batch event: ${body}"/>
+            </aggregate>
+        </route>
+    </camelContext>
+
+    <bean id="aggregatorStrategy" class="org.poc.aggregator.BodyInAggregatingStrategy"/>
 
 </blueprint>
