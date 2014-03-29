@@ -9,8 +9,8 @@
 	</property-placeholder>
 
 	<!-- soap service -->
-	<cxf:cxfEndpoint id="portfolioEndpointDE16" address="${server.de.16}/cxf/portfolio"
-		serviceClass="org.poc.ws.PortfolioEndpointDE16" />
+	<cxf:cxfEndpoint id="portfolioEndpointDE16" address="${server.de.16}/cxf/policy"
+		serviceClass="org.poc.ws.PolicyEndpoint" />
 
 	<!-- rest service -->
 	<cxf:rsServer id="restEndpointDE16" address="${server.de.16}/rest/"
@@ -21,16 +21,49 @@
 		<route id="DE16-soapws-restws">
 			<from uri="cxf:bean:portfolioEndpointDE16" />
 			<log message="DE16 body ${body}" />
-			<setHeader headerName="policyid">
-				<simple>${body}</simple>
-			</setHeader>
-			<setHeader headerName="CamelHttpMethod">
-				<constant>POST</constant>
-			</setHeader>
-			<setHeader headerName="CamelHttpUri">
-				<simple>${properties:server.de.16}/rest/policy/${header.policyid}
-				</simple>
-			</setHeader>
+
+			<choice>
+				<when>
+					<simple>${header.operationName} == 'getPolicy'</simple>
+					<setHeader headerName="CamelHttpMethod">
+						<constant>GET</constant>
+					</setHeader>
+					<setHeader headerName="CamelHttpUri">
+						<simple>${properties:server.de.16}/rest/policy/${body}</simple>
+					</setHeader>
+				</when>
+				<when>
+					<simple>${header.operationName} == 'createPolicy'</simple>
+					<setHeader headerName="CamelHttpMethod">
+						<constant>POST</constant>
+					</setHeader>
+					<setHeader headerName="CamelHttpUri">
+						<simple>${properties:server.de.16}/rest/policy</simple>
+					</setHeader>
+				</when>
+				<when>
+					<simple>${header.operationName} == 'updatePolicy'</simple>
+					<setHeader headerName="CamelHttpMethod">
+						<constant>PUT</constant>
+					</setHeader>
+					<setHeader headerName="CamelHttpUri">
+						<simple>${properties:server.de.16}/rest/policy/${in.body[0]}
+						</simple>
+					</setHeader>
+					<transform>
+						<simple>in.body[1]</simple>
+					</transform>
+				</when>
+				<when>
+					<simple>${header.operationName} == 'deletePolicy'</simple>
+					<setHeader headerName="CamelHttpMethod">
+						<constant>DELETE</constant>
+					</setHeader>
+					<setHeader headerName="CamelHttpUri">
+						<simple>${properties:server.de.16}/rest/policy/${body}</simple>
+					</setHeader>
+				</when>
+			</choice>
 			<log message="DE16 calling ${header.CamelHttpUri}" />
 			<inOut uri="http://dummy" />
 			<!-- need to convert before any logging or enable streamCaching -->
@@ -40,22 +73,53 @@
 
 		<!-- Test rest service -->
 		<route id="de16PoliciesRestServiceRoute">
-			<from uri="cxfrs:bean:restEndpointDE16" />
-			<log message="Input to REST service ${body}" />
+			<from uri="cxfrs:bean:restEndpointDE16?bindingStyle=SimpleConsumer" />
+			<removeHeader headerName="Content-Length" />
 			<choice>
 				<when>
 					<simple>${header.operationName} == 'getPolicyById'</simple>
-					<transform>
-						<simple>"${header.operationName} GET called with ${body}"</simple>
-					</transform>
+					<to uri="direct:getPolicyById" />
 				</when>
 				<when>
-					<simple>${header.operationName} == 'createPolicyById'</simple>
-					<transform>
-						<simple>"${header.operationName} POST called with ${body}"</simple>
-					</transform>
+					<simple>${header.operationName} == 'createPolicy'</simple>
+					<to uri="direct:createPolicy" />
+				</when>
+				<when>
+					<simple>${header.operationName} == 'updatePolicy'</simple>
+					<to uri="direct:updatePolicy" />
+				</when>
+				<when>
+					<simple>${header.operationName} == 'deletePolicyById'</simple>
+					<to uri="direct:deletePolicy" />
 				</when>
 			</choice>
+		</route>
+
+		<route id="rs-getPolicyDE16">
+			<from uri="direct:getPolicyById" />
+			<transform>
+				<simple>${header.operationName} GET called with id = ${header.id}</simple>
+			</transform>
+		</route>
+		<route id="rs-createPolicyDE16">
+			<from uri="direct:createPolicy" />
+			<transform>
+				<simple>REST ${header.operationName} POST called with content =	${body}</simple>
+			</transform>
+		</route>
+
+		<route id="rs-updatePolicyIdDE16">
+			<from uri="direct:updatePolicy" />
+			<transform>
+				<simple>REST ${header.operationName} PUT called with id = ${header.id}, content = ${body}</simple>
+			</transform>
+		</route>
+
+		<route id="rs-deletePolicyDE16">
+			<from uri="direct:deletePolicy" />
+			<transform>
+				<simple>REST ${header.operationName} DELETE called with id = ${header.id}</simple>
+			</transform>
 		</route>
 	</camelContext>
 </blueprint>

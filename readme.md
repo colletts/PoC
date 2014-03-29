@@ -36,16 +36,12 @@ push anything in as the name of the Portfolio - it will enriched and go to activ
 DE16 Mediate between a SOAP/XML and a RESTFul/JSON service interface. 
 Two services
 SOAP
-http://localhost:8185/cxf/portfolio?wsdl
+http://localhost:8185/cxf/policy?wsdl
 
 REST
 http://localhost:8185/rest/policy
-
-Send any message to the SOAP service it calls the REST service - can change header config in route to call POST or GET.
-
-Uses simple Camel HTTP - we could use Restlet, CFXRS or POJO using whatever e.g. Spring RestTemplate
-
-
+Send any message to the SOAP service it calls the REST service basic CRUD implemented
+Uses simple Camel HTTP to call REST - we could use Restlet, CFXRS or POJO using whatever e.g. Spring RestTemplate
 
 DE18 Demonstrate how business rules are configured, deployed, executed, monitored and changed. Demonstrate how they are used in integrations.
 - Dummy project todo
