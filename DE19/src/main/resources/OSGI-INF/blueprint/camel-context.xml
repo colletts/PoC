@@ -15,7 +15,7 @@
                   address="${server.de.19}/cxf/offlineRequest"
                   serviceClass="org.poc.rs.OffLineEndpoint" />
 
-    <camelContext id="de19" xmlns="http://camel.apache.org/schema/blueprint">
+    <camelContext id="DE19-context" xmlns="http://camel.apache.org/schema/blueprint">
         <route id="eventDrivenRoute">
             <from uri="timer:eventDriven?period=15000"/>
             <log message="de19 event"/>

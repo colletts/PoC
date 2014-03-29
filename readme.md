@@ -34,19 +34,27 @@ push anything in as the name of the Portfolio - it will enriched and go to activ
 
 
 DE16 Mediate between a SOAP/XML and a RESTFul/JSON service interface. 
-- Dummy project todo
+Two services
+SOAP
+http://localhost:8185/cxf/portfolio?wsdl
+
+REST
+http://localhost:8185/rest/policy
+
+Send any message to the SOAP service it calls the REST service - can change header config in route to call POST or GET.
+
+Uses simple Camel HTTP - we could use Restlet, CFXRS or POJO using whatever e.g. Spring RestTemplate
+
 
 
 DE18 Demonstrate how business rules are configured, deployed, executed, monitored and changed. Demonstrate how they are used in integrations.
 - Dummy project todo
 
-
 DE19 Demonstrate a scenario involving and event driven messaging to execute in real-time and via a scheduled batch.
-- Dummy project todo
-
+POST any string to 
+http://localhost:8184/cxf/offlineRequest
 
 DE20 Send a message to an offline queue and handle gracefully? Resend per interval. Demonstrate guaranteed delivery of message data once receiving queue becomes active.
-- Dummy project todo
 
 
 features

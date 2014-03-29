@@ -1,6 +1,61 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf">
+	xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf">
 
-	
+	<property-placeholder persistent-id="org.fusesource.camel.ws"
+		xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+		<default-properties>
+			<property name="server.de.16" value="http://localhost:8185" />
+		</default-properties>
+	</property-placeholder>
 
+	<!-- soap service -->
+	<cxf:cxfEndpoint id="portfolioEndpointDE16" address="${server.de.16}/cxf/portfolio"
+		serviceClass="org.poc.ws.PortfolioEndpointDE16" />
+
+	<!-- rest service -->
+	<cxf:rsServer id="restEndpointDE16" address="${server.de.16}/rest/"
+		serviceClass="org.poc.rs.PoliciesRestService" />
+
+	<camelContext trace="false" id="DE16-context"
+		xmlns="http://camel.apache.org/schema/blueprint">
+		<route id="DE16-soapws-restws">
+			<from uri="cxf:bean:portfolioEndpointDE16" />
+			<log message="DE16 body ${body}" />
+			<setHeader headerName="policyid">
+				<simple>${body}</simple>
+			</setHeader>
+			<setHeader headerName="CamelHttpMethod">
+				<constant>POST</constant>
+			</setHeader>
+			<setHeader headerName="CamelHttpUri">
+				<simple>${properties:server.de.16}/rest/policy/${header.policyid}
+				</simple>
+			</setHeader>
+			<log message="DE16 calling ${header.CamelHttpUri}" />
+			<inOut uri="http://dummy" />
+			<!-- need to convert before any logging or enable streamCaching -->
+			<convertBodyTo type="java.lang.String" />
+			<log message="After rest response transform ${body}" />
+		</route>
+
+		<!-- Test rest service -->
+		<route id="de16PoliciesRestServiceRoute">
+			<from uri="cxfrs:bean:restEndpointDE16" />
+			<log message="Input to REST service ${body}" />
+			<choice>
+				<when>
+					<simple>${header.operationName} == 'getPolicyById'</simple>
+					<transform>
+						<simple>"${header.operationName} GET called with ${body}"</simple>
+					</transform>
+				</when>
+				<when>
+					<simple>${header.operationName} == 'createPolicyById'</simple>
+					<transform>
+						<simple>"${header.operationName} POST called with ${body}"</simple>
+					</transform>
+				</when>
+			</choice>
+		</route>
+	</camelContext>
 </blueprint>

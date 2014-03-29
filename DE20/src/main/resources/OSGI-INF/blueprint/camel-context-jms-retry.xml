@@ -6,7 +6,7 @@
     <bean id="noErrorHandler" class="org.apache.camel.builder.NoErrorHandlerBuilder">
     </bean>
 
-    <camelContext id="de20" errorHandlerRef="noErrorHandler" xmlns="http://camel.apache.org/schema/blueprint">
+    <camelContext id="DE20-context" errorHandlerRef="noErrorHandler" xmlns="http://camel.apache.org/schema/blueprint">
         <route id="de20RestInputRoute">
             <from uri="timer:eventDriven?period=15000"/>
             <log message="Received msg for de20"/>
