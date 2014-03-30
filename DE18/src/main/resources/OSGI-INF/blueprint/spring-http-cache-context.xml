@@ -1,0 +1,92 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:camel="http://camel.apache.org/schema/blueprint"
+           xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
+        >
+
+
+<!--<bean id="cachePoolingConnectionManager" class="org.apache.http.impl.conn.PoolingHttpClientConnectionManager">-->
+		<!--<property name="maxTotal" value="200" />-->
+		<!--<property name="defaultMaxPerRoute" value="10" />-->
+	<!--</bean>-->
+
+	<!--<bean id="cacheRequestConfigBuilder" class="org.apache.http.client.config.RequestConfig"-->
+		<!--factory-method="custom">-->
+        <!--<property name="connectTimeout" value="${cache.connection.timeout}" />-->
+        <!--&lt;!&ndash;<property name="connectionRequestTimeout" value="800" />&ndash;&gt;-->
+		<!--&lt;!&ndash; <property name="proxy" ref="httpHost" /> &ndash;&gt;-->
+	<!--</bean>-->
+
+	<!--<bean id="cacheRequestConfig"-->
+          <!--factory-bean="cacheRequestConfigBuilder"-->
+          <!--factory-method="build" >-->
+	<!--</bean>-->
+
+	<!--<bean id="cacheHttpClientBuilder" class="org.apache.http.impl.client.HttpClientBuilder" factory-method="create">-->
+		<!--<property name="defaultCredentialsProvider" ref="cacheCredentialProvider" />-->
+		<!--<property name="connectionManager" ref="cachePoolingConnectionManager" />-->
+ 		<!--<property name="defaultRequestConfig" ref="cacheRequestConfig" />-->
+	<!--</bean>-->
+
+	<!--<bean id="cacheHttpClient"-->
+          <!--factory-bean="cacheHttpClientBuilder"-->
+          <!--factory-method="build" />-->
+
+	<!--&lt;!&ndash; Credentials provider needed by apache default http client &ndash;&gt;-->
+	<!--<bean id="cacheCredentialProvider" class="org.apache.http.impl.client.BasicCredentialsProvider" />-->
+
+	<!--&lt;!&ndash; Used to invoke a method in BasicCredentialsProvider. This has to be -->
+		<!--done this way as BasicCredentialsProvider does not take provider and credentials -->
+		<!--in constructor or setter method. It has to set by invoking setCredentials() -->
+		<!--method and passing two arguments &ndash;&gt;-->
+	<!--<bean id="methodInvoke"	class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">-->
+		<!--<property name="targetObject">-->
+			<!--<ref local="cacheCredentialProvider" />-->
+		<!--</property>-->
+		<!--<property name="targetMethod" value="setCredentials">-->
+		<!--</property>-->
+		<!--<property name="arguments">-->
+			<!--<list>-->
+				<!--<ref local="cacheAuthScope" />-->
+				<!--<ref local="cacheCredentials" />-->
+			<!--</list>-->
+		<!--</property>-->
+	<!--</bean>-->
+
+	<!--&lt;!&ndash; Authorization scope for accessing restful service. Since we want this -->
+		<!--template to be used for everything, we are setting up it with defaults &ndash;&gt;-->
+	<!--<bean id="cacheAuthScope" class="org.apache.http.auth.AuthScope">-->
+		<!--<constructor-arg name="host" value="${cache.url.host}" />-->
+		<!--<constructor-arg name="port" value="${cache.url.port}" />-->
+	<!--</bean>-->
+
+	<!--&lt;!&ndash; Username and Password Credentials to access restful service &ndash;&gt;-->
+	<!--<bean id="cacheCredentials" class="org.apache.http.auth.UsernamePasswordCredentials">-->
+		<!--<constructor-arg name="userName" value="${cache.username}" />-->
+		<!--<constructor-arg name="password" value="${cache.password}" />-->
+	<!--</bean>-->
+
+	<bean id="cacheRestTemplate" class="org.springframework.web.client.RestTemplate">
+		<!--<constructor-arg>-->
+			<!--<bean-->
+				<!--class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory ">-->
+				<!--<constructor-arg ref="cacheHttpClient" />-->
+			<!--</bean>-->
+		<!--</constructor-arg>-->
+		<property name="messageConverters">
+			<list>
+				<bean
+					class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" />
+				<bean
+					class="org.springframework.http.converter.StringHttpMessageConverter" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- <bean id="httpHost" class="org.apache.http.HttpHost"> -->
+	<!-- <constructor-arg index="0" value="${restTemplate.proxy.host}" /> -->
+	<!-- <constructor-arg index="1" value="${restTemplate.proxy.port}" /> -->
+	<!-- </bean> -->
+
+
+
+</blueprint>

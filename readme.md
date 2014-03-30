@@ -44,14 +44,18 @@ Send any message to the SOAP service it calls the REST service basic CRUD implem
 Uses simple Camel HTTP to call REST - we could use Restlet, CFXRS or POJO using whatever e.g. Spring RestTemplate
 
 DE18 Demonstrate how business rules are configured, deployed, executed, monitored and changed. Demonstrate how they are used in integrations.
-- Dummy project todo
+Schedule creates two messages, one with an 'adult' object and one with a 'minor' object.  Based on the
+type of object the drools spreadsheet will calculate a different premium.
+Modify the 'drools.file' property in camel-context.xml to point to the absolute location of the xls file in the root directory
 
 DE19 Demonstrate a scenario involving and event driven messaging to execute in real-time and via a scheduled batch.
-POST any string to 
-http://localhost:8184/cxf/offlineRequest
+Schedule creates a message every 15 secs, batch job processes messages in groups of three.
 
 DE20 Send a message to an offline queue and handle gracefully? Resend per interval. Demonstrate guaranteed delivery of message data once receiving queue becomes active.
-
+Pushes an asynchronous message onto the connectToOfflineEndpoint queue every 15 secs.
+From the queue an attempt is made to post to http://localhost:8184/cxf/offlineRequest.
+If it fails the message will remain on the queue and retry every 30secs until successful
+The http://localhost:8184/cxf/offlineRequest endpoint can be started/stopped by installing/uninstalling de19
 
 features
 generates all projects into KAR that is saved to features\target

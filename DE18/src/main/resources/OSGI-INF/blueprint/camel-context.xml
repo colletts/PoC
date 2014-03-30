@@ -1,6 +1,45 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
 	xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf">
 
-	
+    <property-placeholder persistent-id="org.fusesource.camel.ws"
+                          xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+        <default-properties>
+            <property name="drools.file" value="/drools/DecisionTable.xls" />
+            <property name="cache.url" value="http://10.241.48.8:8080/rest" />
+        </default-properties>
+    </property-placeholder>
 
+    <camelContext id="DE18-context" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="minorDroolsEvent">
+            <from uri="timer:eventDrivenMinor?period=30000"/>
+            <log message="de18 event minor"/>
+            <setBody>
+                <spel>#{T(org.poc.drools.model.DroolsModel).aMinorDroolsModel()}</spel>
+            </setBody>
+            <to uri="bean:droolsEndpoint"/>
+            <log message="premium is ${body.premium}"/>
+        </route>
+
+        <route id="adultDroolsRoute">
+            <from uri="timer:eventDrivenAdult?period=90000"/>
+            <log message="de18 event adult"/>
+            <setBody>
+                <spel>#{T(org.poc.drools.model.DroolsModel).aAdultDroolsModel()}</spel>
+            </setBody>
+            <to uri="bean:droolsEndpoint"/>
+            <to uri="bean:datagridEndpoint?method=putInCache('cahceName', 'key', '1000', ${body})"/>
+            <log message="premium is ${body.premium}"/>
+        </route>
+
+
+    </camelContext>
+
+    <bean id="droolsEndpoint" class="org.poc.drools.endpoint.DroolsEndpoint">
+        <property name="location" value="${drools.file}"/>
+    </bean>
+
+    <bean id="datagridEndpoint" class="org.poc.datagrid.DataGridEndPoint">
+        <property name="cacheUrl" value="${cache.url}"/>
+        <property name="cacheRestTemplate" ref="cacheRestTemplate"/>
+    </bean>
 </blueprint>
