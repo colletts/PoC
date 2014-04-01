@@ -85,6 +85,7 @@ Third use case AV29
 Scenario, expose a webservice that will look up a database for a sample string, and will store that string into JDG (data grid). Demonstrate that subsequent calls will get the value from a data grid and not from the underlying database.
 Deploy across two nodes. Run the case on Node1, get it from database put it in cache. Kill Node1. Run the case on Node2, it should read it from JDG without hitting the database. Basically here we're demoing Fuse/JDG integration.
 
+************ FIRST install datagrid ********************
 
 1) Download Jboss Data grid from
 https://www.jboss.org/products/jdg.html
@@ -140,6 +141,30 @@ POST anything to this
 http://localhost:8080/rest/cuacache
 
 
+
+************ Then use service ********************
+
+Get from 
+
+http://localhost:8187/rest/av29/{key}
+
+key will lookup the value in whatever database
+
+Route will try and get the value for key from datagrid.
+
+@TODO If it is null it should get it from database at the moment returns constant DATABASE_VALUE
+
+Route will save the value to datagrid so next time it gets it from datagrid not database
+
+You can see what is in the cache via this GET
+
+http://localhost:8080/rest/cuacache/{key}
+
+You can clear the cache via this DELETE
+
+http://localhost:8080/rest/cuacache/{key}
+
+You will need Basic Auth for each connection to cache manually.
 
 
 DE23 

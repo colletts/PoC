@@ -28,8 +28,7 @@
         <unmarshal ref="jack"/>
         <log message="DE13 checking phone number ${body.to}"/>
         <log message="DE13 sending message to ${body.to} subject ${body.subject}">
-            <description>@TODO
-go to AD and only send to whispr is to is in there</description>
+            <description>@TODO go to AD and only send to whispr is to is in there</description>
         </log>
         <to uri="direct:sendToWhispr"/>
     </route>

@@ -5,6 +5,10 @@
 		xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
 		<default-properties>
 			<property name="server.av.29" value="http://0.0.0.0:8187" />
+			<property name="data.grid.server" value="http://localhost:8080/rest/" />
+			<property name="data.grid.cache" value="cuacache" />
+			<property name="data.grid.username" value="restuser" />
+			<property name="data.grid.password" value="Passw0rd#" />
 		</default-properties>
 	</property-placeholder>
 
@@ -17,17 +21,82 @@
 
 		<route id="av29RestServiceRoute">
 			<from uri="cxfrs:bean:restEndpointAV29?bindingStyle=SimpleConsumer" />
-			<removeHeader headerName="Content-Length" />
 			<log message="AV29 body ${body}" />
+			<setHeader headerName="key">
+				<simple>${body}</simple>
+			</setHeader>
 			<!-- lookup input from data grid -->
+			<to uri="direct:getFromGrid" />
+			<!-- return it from data grid -->
+			<choice>
+				<when>
+					<simple>${header.CamelHttpResponseCode} == '200'</simple>
+					<log message="Object found in GRID with key ${header.key} value = ${body}" />
+				</when>		
+				<when>
+					<simple>${header.CamelHttpResponseCode} == '404'</simple>
+					<log message="Object not found in GRID with key ${header.key}" />
+					<!-- If not in datagrid lookup from database -->
+					<to uri="direct:getFromDatabase" />
+					<!-- save it to datagrid -->
+					<to uri="direct:saveToGrid" />
+					<log message="After Save To GRID ${body}" />						
+				</when>
+				<otherwise>
+					<log message="Other error ${header.CamelHttpResponseCode} calling GRID Body = ${body}" />
+				</otherwise>
+			</choice>
+			<removeHeader headerName="Content-Length" />
+			<removeHeaders pattern="CamelHttp*"/>					
+		</route>
 
-			<!--  return it from data grid -->
 
-			<!-- If not in datagrid lookup from database -->
-						
-			<!-- save it to datagrid -->			
-			
-			
+		<route id="getFromGridRoute">
+			<from uri="direct:getFromGrid" />
+			<removeHeaders pattern="CamelHttp*"/>				
+			<setHeader headerName="CamelHttpMethod">
+				<constant>GET</constant>
+			</setHeader>
+			<setHeader headerName="CamelHttpUri">
+				<simple>${properties:data.grid.server}${properties:data.grid.cache}/${header.key}</simple>
+			</setHeader>		
+			<log message="GETting object from GRID with key ${header.CamelHttpUri}" />
+			<inOut uri="http://dummy?authMethod=Basic&amp;authUsername={{data.grid.username}}&amp;authPassword={{data.grid.password}}&amp;throwExceptionOnFailure=false" />
+			<log message="GET Response ${header.CamelHttpResponseCode} ${header.CamelHttpUri}" />						
+			<convertBodyTo type="java.lang.String" />
+			<log message="After GET from GRID ${body}" />
+		</route>
+
+		<!-- @TODO implement this -->
+		<route id="getFromDatabaseRoute">
+			<from uri="direct:getFromDatabase" />
+			<transform>
+				<simple>DATABASE_VALUE</simple>
+			</transform>
+			<log message="After GET from DATABASE ${body}" />			
+		</route>
+
+		<route id="saveToGridRoute">
+			<from uri="direct:saveToGrid" />
+			<removeHeaders pattern="CamelHttp*"/>	
+			<!-- Save the value to the header value so we can restore after HTTP call -->			
+			<setHeader headerName="value">
+				<simple>${body}</simple>
+			</setHeader>			
+			<setHeader headerName="CamelHttpMethod">
+				<constant>POST</constant>
+			</setHeader>
+			<setHeader headerName="CamelHttpUri">
+				<simple>${properties:data.grid.server}${properties:data.grid.cache}/${header.key}</simple>
+			</setHeader>
+			<log message="POSTing object to GRID with key ${header.CamelHttpUri}" />
+			<inOut uri="http://dummy?authMethod=Basic&amp;authUsername={{data.grid.username}}&amp;authPassword={{data.grid.password}}" />
+			<log message="POST Response ${header.CamelHttpResponseCode} ${header.CamelHttpUri}" />						
+			<!-- Ignore response from saving to the grid -->	
+			<transform>
+				<simple>${header.value}</simple>
+			</transform>
+			<log message="After Save To GRID ${body}" />	
 		</route>
 
 
