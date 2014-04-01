@@ -1,0 +1,37 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf">
+
+	<property-placeholder persistent-id="org.fusesource.camel.ws"
+		xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+		<default-properties>
+			<property name="server.av.29" value="http://0.0.0.0:8187" />
+		</default-properties>
+	</property-placeholder>
+
+	<!-- rest service -->
+	<cxf:rsServer id="restEndpointAV29" address="${server.av.29}/rest/"
+		serviceClass="org.poc.rs.RequestRestServiceAV29" />
+
+	<camelContext trace="false" id="AV29-context"
+		xmlns="http://camel.apache.org/schema/blueprint">
+
+		<route id="av29RestServiceRoute">
+			<from uri="cxfrs:bean:restEndpointAV29?bindingStyle=SimpleConsumer" />
+			<removeHeader headerName="Content-Length" />
+			<log message="AV29 body ${body}" />
+			<!-- lookup input from data grid -->
+
+			<!--  return it from data grid -->
+
+			<!-- If not in datagrid lookup from database -->
+						
+			<!-- save it to datagrid -->			
+			
+			
+		</route>
+
+
+
+
+	</camelContext>
+</blueprint>

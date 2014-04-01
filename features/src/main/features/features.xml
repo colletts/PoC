@@ -8,6 +8,9 @@
         <feature>camel-jaxb</feature>
         <feature>camel-bindy</feature>
         <feature>camel-cxf</feature>
+        <feature>camel-jackson</feature>
+        <feature>camel-xstream</feature>     
+        <feature>camel-http</feature>           
         <bundle>wrap:mvn:org.poc/DE11/${project.version}</bundle>        
         <bundle>mvn:org.poc/SE00/${project.version}</bundle>		
         <bundle>mvn:org.poc/DE15/${project.version}</bundle>
@@ -15,5 +18,8 @@
 		<bundle>mvn:org.poc/DE18/${project.version}</bundle>
 		<bundle>mvn:org.poc/DE19/${project.version}</bundle>
 		<bundle>mvn:org.poc/DE20/${project.version}</bundle>
+		<bundle>mvn:org.poc/DE13/${project.version}</bundle>
+		<bundle>mvn:org.poc/AV29/${project.version}</bundle>
+		<bundle>mvn:org.poc/DE23/${project.version}</bundle>
     </feature>
 </features>

@@ -1,0 +1,59 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf">
+
+	<property-placeholder persistent-id="org.fusesource.camel.ws"
+		xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+		<default-properties>
+			<property name="server.de.13" value="http://0.0.0.0:8188" />
+			<property name="whispr.server"
+				value="http://api.whispir.com/workspaces/874B8A072EF1DE68/messages?apikey=ubgxc58t6bb5zt2acshp7wgb" />
+		</default-properties>
+	</property-placeholder>
+
+	<!-- rest service -->
+	<cxf:rsServer id="restEndpointDE13" address="${server.de.13}/rest/"
+		serviceClass="org.poc.rs.RequestRestServiceDE13" />
+
+	<camelContext trace="false" id="DE13-context" xmlns="http://camel.apache.org/schema/blueprint">
+    <dataFormats>
+        <json unmarshalTypeName="org.poc.pojo.RequestDE13" library="Jackson" id="jack"/>
+    </dataFormats>
+    <route id="de13RestServiceRoute">
+        <from uri="cxfrs:bean:restEndpointDE13?bindingStyle=SimpleConsumer"/>
+        <removeHeader headerName="Content-Length"/>
+        <removeHeaders pattern="CamelHttp*">
+            <description>see http://camel.apache.org/how-to-remove-the-http-protocol-headers-in-the-camel-message.html</description>
+        </removeHeaders>
+        <log message="DE13 body ${body}"/>
+        <unmarshal ref="jack"/>
+        <log message="DE13 checking phone number ${body.to}"/>
+        <log message="DE13 sending message to ${body.to} subject ${body.subject}">
+            <description>@TODO
+go to AD and only send to whispr is to is in there</description>
+        </log>
+        <to uri="direct:sendToWhispr"/>
+    </route>
+    <route id="av13ToWhisprRoute">
+        <from uri="direct:sendToWhispr"/>
+        <setHeader headerName="CamelHttpMethod">
+            <constant>POST</constant>
+        </setHeader>
+        <setHeader headerName="CamelHttpUri">
+            <simple>${properties:whispr.server}</simple>
+        </setHeader>
+        <setHeader headerName="Authorization">
+            <constant>Basic Y3VhLnNtczpid3llaFBJVTRCMTNOVDR0OFdieA==</constant>
+        </setHeader>
+        <setHeader headerName="Content-Type">
+            <constant>application/vnd.whispir.message-v1+json</constant>
+        </setHeader>
+        <log message="DE13 calling ${header.CamelHttpUri}"/>
+        <marshal ref="jack"/>
+        <inOut uri="http://dummy"/>
+        <convertBodyTo type="java.lang.String">
+            <description>need to convert before any logging or enable streamCaching</description>
+        </convertBodyTo>
+        <log message="After rest response transform ${body}"/>
+    </route>
+</camelContext>
+</blueprint>
