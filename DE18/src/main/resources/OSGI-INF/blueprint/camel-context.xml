@@ -4,7 +4,7 @@
     <property-placeholder persistent-id="org.fusesource.camel.ws"
                           xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
         <default-properties>
-            <property name="drools.file" value="/drools/DecisionTable.xls" />
+            <property name="drools.file" value="/home/jboss/DecisionTable.xls" />
             <property name="cache.url" value="http://10.241.48.8:8080/rest" />
         </default-properties>
     </property-placeholder>
@@ -27,7 +27,7 @@
                 <spel>#{T(org.poc.drools.model.DroolsModel).aAdultDroolsModel()}</spel>
             </setBody>
             <to uri="bean:droolsEndpoint"/>
-            <to uri="bean:datagridEndpoint?method=putInCache('cahceName', 'key', '1000', ${body})"/>
+            <!--<to uri="bean:datagridEndpoint?method=putInCache('cahceName', 'key', '1000', ${body})"/>-->
             <log message="premium is ${body.premium}"/>
         </route>
 
@@ -38,8 +38,8 @@
         <property name="location" value="${drools.file}"/>
     </bean>
 
-    <bean id="datagridEndpoint" class="org.poc.datagrid.DataGridEndPoint">
-        <property name="cacheUrl" value="${cache.url}"/>
-        <property name="cacheRestTemplate" ref="cacheRestTemplate"/>
-    </bean>
+    <!--<bean id="datagridEndpoint" class="org.poc.datagrid.DataGridEndPoint">-->
+        <!--<property name="cacheUrl" value="${cache.url}"/>-->
+        <!--<property name="cacheRestTemplate" ref="cacheRestTemplate"/>-->
+    <!--</bean>-->
 </blueprint>

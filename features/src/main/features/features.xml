@@ -8,8 +8,9 @@
         <feature>camel-jaxb</feature>
         <feature>camel-bindy</feature>
         <feature>camel-cxf</feature>
-        <bundle>wrap:mvn:org.poc/DE11/${project.version}</bundle>        
-        <bundle>mvn:org.poc/SE00/${project.version}</bundle>		
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.drools/5.5.0.Final_1</bundle>
+        <bundle>wrap:mvn:org.poc/DE11/${project.version}</bundle>
+        <bundle>mvn:org.poc/SE00/${project.version}</bundle>
         <bundle>mvn:org.poc/DE15/${project.version}</bundle>
 		<bundle>mvn:org.poc/DE16/${project.version}</bundle>
 		<bundle>mvn:org.poc/DE18/${project.version}</bundle>

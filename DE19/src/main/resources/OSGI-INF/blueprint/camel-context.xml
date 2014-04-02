@@ -6,7 +6,7 @@
     <property-placeholder persistent-id="org.fusesource.camel.ws"
                           xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
         <default-properties>
-            <property name="server.de.19" value="http://localhost:8184" />
+            <property name="server.de.19" value="http://0.0.0.0:8184" />
         </default-properties>
     </property-placeholder>
 
@@ -33,6 +33,9 @@
         <route id="de20OfflineOnlineRoute">
             <from uri="cxfrs:bean:restServer"/>
             <log message="Offline system is now online and receiving de20 message."/>
+            <setBody>
+                <constant>Message de20 processed sucessfully</constant>
+            </setBody>
         </route>
 
     </camelContext>

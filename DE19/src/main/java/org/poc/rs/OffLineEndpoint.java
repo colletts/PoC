@@ -8,7 +8,7 @@ public class OffLineEndpoint {
 
     @POST
     @Path("/")
-    public void receiveRequest(String string){
+    public void receiveRequest(String object){
 
     }
 

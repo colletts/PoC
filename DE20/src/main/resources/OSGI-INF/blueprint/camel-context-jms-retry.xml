@@ -6,9 +6,9 @@
     <bean id="noErrorHandler" class="org.apache.camel.builder.NoErrorHandlerBuilder">
     </bean>
 
-    <camelContext id="DE20-context" errorHandlerRef="noErrorHandler" xmlns="http://camel.apache.org/schema/blueprint">
+    <camelContext id="DE20-context" xmlns="http://camel.apache.org/schema/blueprint">
         <route id="de20RestInputRoute">
-            <from uri="timer:eventDriven?period=15000"/>
+            <from uri="timer:eventDriven?period=1500000"/>
             <log message="Received msg for de20"/>
             <setBody>
                 <constant>message</constant>
@@ -20,7 +20,11 @@
             <from uri="activemq:connectToOfflineEndpoint"/>
             <transacted ref="required"/>
             <log message="Receive de20 jms message and send message to offline system"/>
+            <setBody>
+                <constant>body</constant>
+            </setBody>
             <to uri="http://localhost:8184/cxf/offlineRequest"/>
+            <log message="Confirmed offline system is up and processing successfully"/>
         </route>
 
     </camelContext>
@@ -49,7 +53,7 @@
     </bean>
 
     <bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-        <property name="brokerURL" value="vm://localhost?broker.persistent=false&amp;broker.useJmx=false"/>
+        <property name="brokerURL" value="vm://localhost"/>
         <property name="userName" value="admin"/>
         <property name="password" value="admin"/>
         <property name="redeliveryPolicy" ref="redeliveryPolicy"/>
@@ -57,7 +61,8 @@
 
     <bean id="redeliveryPolicy" class="org.apache.activemq.RedeliveryPolicy">
         <property name="maximumRedeliveries" value="-1"/>
-        <property name="redeliveryDelay" value="30000"/>
+        <property name="redeliveryDelay" value="60000"/>
+        <property name="initialRedeliveryDelay" value="30000"/>
     </bean>
 
     <!-- setup spring jms TX manager -->

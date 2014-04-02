@@ -30,6 +30,8 @@
 		<module>DE19</module>
 		<module>DE20</module>		
 		<module>features</module>				
+		<module>features 19</module>
+		<module>features 20</module>
 	</modules>
 
 	<properties>
@@ -206,6 +208,17 @@
 				<enabled>true</enabled>
 			</releases>
 		</repository>
+		<!--<repository>-->
+			<!--<id>fusesource-releases</id>-->
+			<!--<name>FuseSource Release Repository</name>-->
+			<!--<url>http://virlxapp036:8081</url>-->
+			<!--<snapshots>-->
+				<!--<enabled>false</enabled>-->
+			<!--</snapshots>-->
+			<!--<releases>-->
+				<!--<enabled>true</enabled>-->
+			<!--</releases>-->
+		<!--</repository>-->
 	</repositories>
 
 </project>

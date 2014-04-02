@@ -4,7 +4,7 @@
 	<property-placeholder persistent-id="org.fusesource.camel.ws"
 		xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
 		<default-properties>
-			<property name="server.de.15" value="http://localhost:8183" />
+			<property name="server.de.15" value="http://0.0.0.0:8183" />
 		</default-properties>
 	</property-placeholder>
 
@@ -28,7 +28,7 @@
 			</setBody>
 			<inOnly uri="activemq:DE15_Queue" />
 			<transform>
-				<constant>OK</constant>
+                <simple>${body} response</simple>
 			</transform>
 		</route>
 	</camelContext>

@@ -4,7 +4,7 @@
   <property-placeholder persistent-id="org.fusesource.camel.ws"
     xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
     <default-properties>
-      <property name="httpAddress" value="http://localhost:8182/cxf/order" />
+      <property name="httpAddress" value="http://0.0.0.0:8182/cxf/order" />
     </default-properties>
   </property-placeholder>
 

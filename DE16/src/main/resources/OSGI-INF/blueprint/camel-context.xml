@@ -4,7 +4,7 @@
 	<property-placeholder persistent-id="org.fusesource.camel.ws"
 		xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
 		<default-properties>
-			<property name="server.de.16" value="http://localhost:8185" />
+			<property name="server.de.16" value="http://0.0.0.0:8185" />
 		</default-properties>
 	</property-placeholder>
 
