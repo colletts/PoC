@@ -15,44 +15,88 @@
 		serviceClass="org.poc.rs.RequestRestServiceDE13" />
 
 	<camelContext trace="false" id="DE13-context" xmlns="http://camel.apache.org/schema/blueprint">
-    <dataFormats>
-        <json unmarshalTypeName="org.poc.pojo.RequestDE13" library="Jackson" id="jack"/>
-    </dataFormats>
-    <route id="de13RestServiceRoute">
-        <from uri="cxfrs:bean:restEndpointDE13?bindingStyle=SimpleConsumer"/>
-        <removeHeader headerName="Content-Length"/>
-        <removeHeaders pattern="CamelHttp*">
-            <description>see http://camel.apache.org/how-to-remove-the-http-protocol-headers-in-the-camel-message.html</description>
-        </removeHeaders>
-        <log message="DE13 body ${body}"/>
-        <unmarshal ref="jack"/>
-        <log message="DE13 checking phone number ${body.to}"/>
-        <log message="DE13 sending message to ${body.to} subject ${body.subject}">
-            <description>@TODO go to AD and only send to whispr is to is in there</description>
-        </log>
-        <to uri="direct:sendToWhispr"/>
-    </route>
-    <route id="av13ToWhisprRoute">
-        <from uri="direct:sendToWhispr"/>
-        <setHeader headerName="CamelHttpMethod">
-            <constant>POST</constant>
-        </setHeader>
-        <setHeader headerName="CamelHttpUri">
-            <simple>${properties:whispr.server}</simple>
-        </setHeader>
-        <setHeader headerName="Authorization">
-            <constant>Basic Y3VhLnNtczpid3llaFBJVTRCMTNOVDR0OFdieA==</constant>
-        </setHeader>
-        <setHeader headerName="Content-Type">
-            <constant>application/vnd.whispir.message-v1+json</constant>
-        </setHeader>
-        <log message="DE13 calling ${header.CamelHttpUri}"/>
-        <marshal ref="jack"/>
-        <inOut uri="http://dummy"/>
-        <convertBodyTo type="java.lang.String">
-            <description>need to convert before any logging or enable streamCaching</description>
-        </convertBodyTo>
-        <log message="After rest response transform ${body}"/>
-    </route>
-</camelContext>
+        <dataFormats>
+            <json unmarshalTypeName="org.poc.pojo.RequestDE13" library="Jackson" id="jack"/>
+        </dataFormats>
+
+        <route id="de13RestServiceRoute">
+            <from uri="cxfrs:bean:restEndpointDE13?bindingStyle=SimpleConsumer"/>
+            <removeHeader headerName="Content-Length"/>
+            <removeHeaders pattern="CamelHttp*">
+                <description>see http://camel.apache.org/how-to-remove-the-http-protocol-headers-in-the-camel-message.html</description>
+            </removeHeaders>
+            <log message="DE13 body ${body}"/>
+            <unmarshal ref="jack"/>
+            <log message="DE13 checking phone number ${body.to}"/>
+            <setHeader headerName="msgToSend">
+                <simple>${body}</simple>
+            </setHeader>
+            <setBody>
+                <simple>${body.to}</simple>
+            </setBody>
+            <to uri="bean:ldapEndpoint"/>
+            <log message="response from ldap ${body}}"/>
+            <choice>
+                <when>
+                    <simple>${body} == true</simple>
+                    <setBody>
+                        <simple>${header.msgToSend}</simple>
+                    </setBody>
+                    <log message="DE13 sending message to ${body.to} subject ${body.subject}"/>
+                    <to uri="direct:sendToWhispr"/>
+                </when>
+                <otherwise>
+                    <setBody>
+                        <constant>Number not valid</constant>
+                    </setBody>
+                </otherwise>
+            </choice>
+        </route>
+
+        <route id="av13ToWhisprRoute">
+            <from uri="direct:sendToWhispr"/>
+            <setHeader headerName="CamelHttpMethod">
+                <constant>POST</constant>
+            </setHeader>
+            <setHeader headerName="CamelHttpUri">
+                <simple>${properties:whispr.server}</simple>
+            </setHeader>
+            <setHeader headerName="Authorization">
+                <constant>Basic Y3VhLnNtczpid3llaFBJVTRCMTNOVDR0OFdieA==</constant>
+            </setHeader>
+            <setHeader headerName="Content-Type">
+                <constant>application/vnd.whispir.message-v1+json</constant>
+            </setHeader>
+            <log message="DE13 calling ${header.CamelHttpUri}"/>
+            <marshal ref="jack"/>
+            <inOut uri="http://dummy"/>
+            <convertBodyTo type="java.lang.String">
+                <description>need to convert before any logging or enable streamCaching</description>
+            </convertBodyTo>
+            <log message="After rest response transform ${body}"/>
+        </route>
+    </camelContext>
+
+
+    <bean id="ldapEndpoint" class="org.poc.pojo.LdapEndpoint">
+        <property name="domain" value="CUA.COM.AU"/>
+        <property name="ldapHost" value="ldap://bnewsads001.cua.com.au"/>
+        <property name="searchBase" value="OU=User Accounts,DC=cua,DC=com,DC=au"/>
+        <property name="bindUser" value="LDAP_NucleusFuseDev"/>
+        <property name="bindPassword" value="9C0njuncti0n$"/>
+        <property name="groupCN" value="CN=SMS Development,OU=Resource,OU=Groups,DC=cua,DC=com,DC=au"/>
+    </bean>
+
+    <!--<bean id="ldapServer" class="javax.naming.directory.InitialDirContext" scope="prototype">-->
+        <!--<argument>-->
+            <!--<props>-->
+                <!--<prop key="java.naming.factory.initial" value="com.sun.jndi.ldap.LdapCtxFactory"/>-->
+                <!--<prop key="java.naming.provider.url" value="ldap://ldapad.cua.com.au"/>-->
+                <!--<prop key="java.naming.security.authentication" value="simple"/>-->
+                <!--<prop key="java.naming.security.principle" value="LDAP_NucleusFuseDev@cua.com.au"/>-->
+                <!--<prop key="java.naming.security.password" value="9C0njuncti0n$"/>-->
+            <!--</props>-->
+        <!--</argument>-->
+    <!--</bean>-->
+
 </blueprint>
