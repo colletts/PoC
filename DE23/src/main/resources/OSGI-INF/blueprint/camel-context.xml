@@ -1,15 +1,92 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
 	xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf">
 
-	<property-placeholder persistent-id="org.fusesource.camel.ws"
-		xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
-		<default-properties>
-			<property name="server.de.23" value="http://localhost:8189" />
-		</default-properties>
-	</property-placeholder>
+	<camelContext id="DE23-context"
+		xmlns="http://camel.apache.org/schema/blueprint">
+
+		<!-- Initial processing Queue -->
+		<route id="DE23_initial">
+			<from uri="activemq:DE23_SharedRequestQueue" />
+			<log message="Request on shared queue ${body} ${header.JMSCorrelationID}"/>
+			<choice>
+				<!-- Anything with Queue1 in message goes for special processing on Route1 -->
+				<when>
+					<simple>${body} contains 'Queue1'</simple>
+					<inOnly uri="activemq:queue:DE23_RequestQueue1" />					
+				</when>
+
+				<otherwise>
+					<inOnly uri="activemq:queue:DE23_RequestQueue2" />				
+				</otherwise>				
+			</choice>	
+			<log message="Finished processing"/>
+		</route>
 
 
-	<camelContext trace="false" id="DE23-context">
+		<!-- processing for Queue1 messages -->
+		<route id="DE23_Route1">
+			<from uri="activemq:DE23_RequestQueue1" />
+			<log message="Request on queue 1 ${body}"/>
+			<!-- special java transform for Queue1 -->
+			<to uri="bean:org.poc.bean.ThirdPartyCodeRequest?method=transform(${body})"/>
+			<!-- here correlation ID is used to get response -->			
+			<inOut uri="activemq:queue:DE23_SharedProcessingQueue?replyTo=DE23_ReplyQueue1" />
+			<log message="Reply on queue 1 ${body}"/>
+		</route>
 
+		<!-- processing for non Queue1 messages -->
+		<route id="DE23_Route2">
+			<from uri="activemq:DE23_RequestQueue2" />
+			<log message="Request on queue 2 ${body}"/>
+			<!-- here correlation ID is used to get response -->						
+			<inOut uri="activemq:queue:DE23_SharedProcessingQueue?replyTo=DE23_ReplyQueue2" />
+			<log message="Reply on queue 2 ${body}"/>						
+		</route>
+
+		<!-- common queue processing -->
+		<route id="DE23_SharedProcessRoute">
+			<from uri="activemq:DE23_SharedProcessingQueue" />
+			<setBody>
+				<simple>"${in.body} corr-id ${header.JMSCorrelationID}"</simple>
+			</setBody>
+			<log message="Processing ${body}"/>
+		</route>
+
+		<!-- logging of the message on the route -->		
+		<route id="DE23_Reply_Route1">
+			<from uri="activemq:DE23_ReplyQueue1" />
+			<log message="On Reply Queue 1 ${body} ${header.JMSCorrelationID}"/>
+		</route>
+
+		<!-- logging of the message on the route -->
+		<route id="DE23_Reply_Route2">
+			<from uri="activemq:DE23_ReplyQueue2" />
+			<log message="On Reply Queue 2 ${body} ${header.JMSCorrelationID}"/>
+		</route>
+			
+		<route id="DE23_AggregationRoute">
+			<from uri="activemq:DE23_AggregateRequestQueue" />
+            <aggregate strategyRef="aggregatorStrategy" completionSize="3">
+                <correlationExpression>
+                    <simple>${header.customid}</simple>
+                </correlationExpression>
+                <setBody>
+					<simple>"DE23 customid ${header.customid} : ${body}"</simple>
+				</setBody>
+                <log message="${body}"/>                
+                <to uri="activemq:DE23_AggregateResponseQueue"/>
+            </aggregate>			
+		</route>
+		
 	</camelContext>
+
+	<!-- Set username and password to values you set in etc/user.properties -->
+	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+		<property name="brokerURL" value="tcp://localhost:61616" />
+		<property name="userName" value="admin" />
+		<property name="password" value="admin" />
+	</bean>
+
+	<bean id="aggregatorStrategy" class="org.poc.aggregator.BodyInAggregatingStrategy"/>
+
 </blueprint>

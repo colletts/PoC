@@ -174,7 +174,17 @@ Scenario
 CUA has 4 Telebanker servers each talking to their own MQ queues and can only talk to other systems via MQ. However due to legacy requirements the ESB will be required to manipulate a section of this message only when message type is 1(bold below) with a java class provided by a vendor so the message can be accepted by core banking. The ESB will also need to do matching on Correlation ID so the response message is returned to the correct Telebanker system.
 Note: the ESB is only responsible for executing this code on the message it is not required to validate the execution .
 
-@TODO all of it
+Secnarios has changed to using activeMQ and showing some level of correlation between messages
+
+2 Tests
+
+1) add message to queue that is enriched based on Body of message and goes through different queues using reply to header (and correlation id behind scenes) to send to different processing quues
+
+Put a message on queue DE23_SharedProcessingQueue - if message contains Queue1 it will be transformed and processed by the 1 queues if not no transform and the 2 queues wil process
+
+2) add message to queue that will aggregate based on customid header in groups of 3 
+Put message on DE23_AggregateRequestQueue - needs a header customid - will aggregate these messages to DE23_AggregateResponseQueue in bactheds of 3 based on same customid header.
+
 
 
 
