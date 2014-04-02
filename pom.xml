@@ -29,6 +29,9 @@
 		<module>DE18</module>
 		<module>DE19</module>
 		<module>DE20</module>		
+		<module>DE13</module>				
+		<module>DE23</module>						
+		<module>AV29</module>								
 		<module>features</module>				
 		<module>features 19</module>
 		<module>features 20</module>

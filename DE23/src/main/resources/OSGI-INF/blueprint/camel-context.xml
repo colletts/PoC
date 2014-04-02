@@ -1,0 +1,15 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf">
+
+	<property-placeholder persistent-id="org.fusesource.camel.ws"
+		xmlns="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+		<default-properties>
+			<property name="server.de.23" value="http://localhost:8189" />
+		</default-properties>
+	</property-placeholder>
+
+
+	<camelContext trace="false" id="DE23-context">
+
+	</camelContext>
+</blueprint>
