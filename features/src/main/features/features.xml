@@ -16,5 +16,8 @@
 		<bundle>mvn:org.poc/DE18/${project.version}</bundle>
 		<bundle>mvn:org.poc/DE19/${project.version}</bundle>
 		<bundle>mvn:org.poc/DE20/${project.version}</bundle>
+		<bundle>mvn:org.poc/DE13/${project.version}</bundle>
+		<bundle>mvn:org.poc/AV29/${project.version}</bundle>
+		<bundle>mvn:org.poc/DE23/${project.version}</bundle>
     </feature>
 </features>
