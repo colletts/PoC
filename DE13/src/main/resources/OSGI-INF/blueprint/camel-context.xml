@@ -55,7 +55,7 @@
 
         <route id="av13ToWhisprRoute">
             <from uri="direct:sendToWhispr"/>
-            <setHeader headerName="CamelHttpMethod">
+             <setHeader headerName="CamelHttpMethod">
                 <constant>POST</constant>
             </setHeader>
             <setHeader headerName="CamelHttpUri">
@@ -69,7 +69,7 @@
             </setHeader>
             <log message="DE13 calling ${header.CamelHttpUri}"/>
             <marshal ref="jack"/>
-            <inOut uri="http://dummy"/>
+            <inOut uri="http://dummy?proxyHost=172.30.131.189&amp;proxyPort=80"/>
             <convertBodyTo type="java.lang.String">
                 <description>need to convert before any logging or enable streamCaching</description>
             </convertBodyTo>
